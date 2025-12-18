@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Моя визитка</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            overflow-x: hidden;
+            padding-bottom: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--tg-theme-button-color, #3390ec) 0%, var(--tg-theme-button-color, #2b7ac4) 100%);
+            padding: 40px 20px 30px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+
+        /* Navigation */
+        .nav {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 20px;
+            background: var(--tg-theme-secondary-bg-color, #f4f4f5);
+        }
+
+        .nav-button {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 20px;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--tg-theme-text-color, #000000);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-button:active {
+            transform: scale(0.95);
+        }
+
+        .nav-button.active {
+            background: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            box-shadow: 0 4px 12px rgba(51, 144, 236, 0.3);
+        }
+
+        .nav-icon {
+            font-size: 28px;
+        }
+
+        /* Content */
+        .content {
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .info-row {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .info-icon {
+            font-size: 24px;
+            margin-right: 15px;
+            min-width: 30px;
+        }
+
+        .info-content h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        .info-content p {
+            font-size: 14px;
+            color: var(--tg-theme-hint-color, #999999);
+            line-height: 1.5;
+        }
+
+        /* Projects */
+        .project-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .project-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .project-icon {
+            font-size: 32px;
+            margin-right: 15px;
+        }
+
+        .project-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        .project-description {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--tg-theme-hint-color, #666666);
+            margin-bottom: 12px;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        /* Reviews */
+        .review-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .review-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 15px;
+            color: white;
+        }
+
+        .review-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .stars {
+            color: #ffd700;
+            font-size: 14px;
+        }
+
+        .review-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--tg-theme-hint-color, #666666);
+            margin-top: 12px;
+        }
+
+        /* Contact */
+        .contact-button {
+            background: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 16px;
+            padding: 18px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(51, 144, 236, 0.3);
+        }
+
+        .contact-button:active {
+            transform: scale(0.98);
+        }
+
+        .social-links {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .social-button {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 20px;
+            font-size: 32px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .social-button:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="avatar">👤</div>
+            <h1 id="userName">Ваше Имя</h1>
+            <p id="userTitle">Ваша профессия</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav">
+            <button class="nav-button active" onclick="showPage('about')" id="btn-about">
+                <span class="nav-icon">👋</span>
+                Обо мне
+            </button>
+            <button class="nav-button" onclick="showPage('projects')" id="btn-projects">
+                <span class="nav-icon">💼</span>
+                Проекты
+            </button>
+            <button class="nav-button" onclick="showPage('reviews')" id="btn-reviews">
+                <span class="nav-icon">⭐</span>
+                Отзывы
+            </button>
+            <button class="nav-button" onclick="showPage('contact')" id="btn-contact">
+                <span class="nav-icon">📱</span>
+                Связаться
+            </button>
+        </div>
+
+        <!-- Content -->
+        <div class="content" id="content"></div>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.enableClosingConfirmation();
+
+        // Получение данных пользователя из Telegram
+        const telegramUser = tg.initDataUnsafe?.user;
+        if (telegramUser) {
+            document.getElementById('userName').textContent = telegramUser.first_name + (telegramUser.last_name ? ' ' + telegramUser.last_name : '');
+        }
+
+        // Страницы приложения
+        const pages = {
+            about: `
+                <h2 class="section-title">Обо мне</h2>
+                <div class="card">
+                    <div class="info-row">
+                        <div class="info-icon">💡</div>
+                        <div class="info-content">
+                            <h3>Профессия</h3>
+                            <p>Full-stack разработчик с 5+ годами опыта создания веб-приложений и мобильных решений</p>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon">🎯</div>
+                        <div class="info-content">
+                            <h3>Специализация</h3>
+                            <p>React, Node.js, Python, Telegram Bot Development, UI/UX дизайн</p>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon">🏆</div>
+                        <div class="info-content">
+                            <h3>Достижения</h3>
+                            <p>Реализовал 50+ проектов для клиентов из разных стран, участник хакатонов, спикер на IT-конференциях</p>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon">📚</div>
+                        <div class="info-content">
+                            <h3>Образование</h3>
+                            <p>Магистр компьютерных наук, сертифицированный специалист AWS</p>
+                        </div>
+                    </div>
+                </div>
+            `,
+            
+            projects: `
+                <h2 class="section-title">Мои проекты</h2>
+                <div class="project-card">
+                    <div class="project-header">
+                        <div class="project-icon">🤖</div>
+                        <div class="project-title">Telegram Mini Apps</div>
+                    </div>
+                    <p class="project-description">
+                        Разработка интерактивных веб-приложений для Telegram с красивым дизайном и удобным интерфейсом
+                    </p>
+                    <div class="project-tags">
+                        <span class="tag">JavaScript</span>
+                        <span class="tag">Telegram API</span>
+                        <span class="tag">UI/UX</span>
+                    </div>
+                </div>
+                
+                <div class="project-card">
+                    <div class="project-header">
+                        <div class="project-icon">🛍️</div>
+                        <div class="project-title">E-commerce платформа</div>
+                    </div>
+                    <p class="project-description">
+                        Полнофункциональный интернет-магазин с интеграцией платежных систем и системой управления заказами
+                    </p>
+                    <div class="project-tags">
+                        <span class="tag">React</span>
+                        <span class="tag">Node.js</span>
+                        <span class="tag">MongoDB</span>
+                    </div>
+                </div>
+                
+                <div class="project-card">
+                    <div class="project-header">
+                        <div class="project-icon">📊</div>
+                        <div class="project-title">Аналитическая панель</div>
+                    </div>
+                    <p class="project-description">
+                        Дашборд для визуализации бизнес-метрик в реальном времени с интерактивными графиками
+                    </p>
+                    <div class="project-tags">
+                        <span class="tag">Python</span>
+                        <span class="tag">Data Viz</span>
+                        <span class="tag">API</span>
+                    </div>
+                </div>
+            `,
+            
+            reviews: `
+                <h2 class="section-title">Отзывы клиентов</h2>
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-avatar">АС</div>
+                        <div class="review-info">
+                            <h3>Александр Смирнов</h3>
+                            <div class="stars">⭐⭐⭐⭐⭐</div>
+                        </div>
+                    </div>
+                    <p class="review-text">
+                        Отличный специалист! Разработал для нас Telegram бота с интеграцией CRM системы. Все сделано качественно и в срок. Рекомендую!
+                    </p>
+                </div>
+                
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-avatar">МК</div>
+                        <div class="review-info">
+                            <h3>Мария Козлова</h3>
+                            <div class="stars">⭐⭐⭐⭐⭐</div>
+                        </div>
+                    </div>
+                    <p class="review-text">
+                        Профессиональный подход к делу. Создал красивое веб-приложение для нашего стартапа. Всегда на связи, учитывает все пожелания.
+                    </p>
+                </div>
+                
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-avatar">ДП</div>
+                        <div class="review-info">
+                            <h3>Дмитрий Петров</h3>
+                            <div class="stars">⭐⭐⭐⭐⭐</div>
+                        </div>
+                    </div>
+                    <p class="review-text">
+                        Очень доволен результатом! Помог с разработкой интернет-магазина от идеи до запуска. Отличное качество кода и внимание к деталям.
+                    </p>
+                </div>
+            `,
+            
+            contact: `
+                <h2 class="section-title">Связаться со мной</h2>
+                <div class="card">
+                    <button class="contact-button" onclick="openTelegram()">
+                        <span>💬</span>
+                        Написать в Telegram
+                    </button>
+                    <button class="contact-button" onclick="sendEmail()">
+                        <span>📧</span>
+                        Отправить Email
+                    </button>
+                    <button class="contact-button" onclick="callPhone()">
+                        <span>📞</span>
+                        Позвонить
+                    </button>
+                </div>
+                
+                <h2 class="section-title" style="margin-top: 30px;">Социальные сети</h2>
+                <div class="social-links">
+                    <button class="social-button" onclick="openLink('https://github.com')">
+                        🐙
+                    </button>
+                    <button class="social-button" onclick="openLink('https://linkedin.com')">
+                        💼
+                    </button>
+                    <button class="social-button" onclick="openLink('https://twitter.com')">
+                        🐦
+                    </button>
+                </div>
+            `
+        };
+
+        // Функция переключения страниц
+        function showPage(pageName) {
+            // Обновление контента
+            document.getElementById('content').innerHTML = pages[pageName];
+            
+            // Обновление активной кнопки
+            document.querySelectorAll('.nav-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('btn-' + pageName).classList.add('active');
+            
+            // Вибрация при переключении (если поддерживается)
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
+        }
+
+        // Функции для кнопок контактов
+        function openTelegram() {
+            tg.openTelegramLink('https://t.me/your_username');
+        }
+
+        function sendEmail() {
+            tg.openLink('mailto:your.email@example.com');
+        }
+
+        function callPhone() {
+            tg.openLink('tel:+79001234567');
+        }
+
+        function openLink(url) {
+            tg.openLink(url);
+        }
+
+        // Показать первую страницу при загрузке
+        showPage('about');
+
+        // Отправка данных о готовности приложения
+        tg.ready();
+    </script>
+</body>
+</html>
